@@ -17,6 +17,10 @@ module Spring
       @interrupt    = IO.pipe
     end
 
+    def id
+      "#{app_context}:#{app_env}"
+    end
+
     def state(val)
       return if exiting?
       log "#{@state} -> #{val}"
@@ -32,12 +36,16 @@ module Spring
       ENV['RAILS_ENV']
     end
 
+    def app_context
+      ENV['RAILS_CONTEXT']
+    end
+
     def app_name
       spring_env.app_name
     end
 
     def log(message)
-      spring_env.log "[application:#{app_env}] #{message}"
+      spring_env.log "[application:#{id}] #{message}"
     end
 
     def preloaded?
@@ -73,7 +81,7 @@ module Spring
 
       if @watcher.respond_to? :on_debug
         @watcher.on_debug do |message|
-          spring_env.log "[watcher:#{app_env}] #{message}"
+          spring_env.log "[watcher:#{id}] #{message}"
         end
       end
 

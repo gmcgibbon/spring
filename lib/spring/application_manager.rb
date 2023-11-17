@@ -1,17 +1,22 @@
 module Spring
   class ApplicationManager
-    attr_reader :pid, :child, :app_env, :spring_env, :status
+    attr_reader :pid, :child, :app_env, :app_context, :spring_env, :status
 
-    def initialize(app_env, spring_env)
-      @app_env    = app_env
-      @spring_env = spring_env
-      @mutex      = Mutex.new
-      @state      = :running
-      @pid        = nil
+    def initialize(app_env, app_context, spring_env)
+      @app_env     = app_env
+      @app_context = app_context
+      @spring_env  = spring_env
+      @mutex       = Mutex.new
+      @state       = :running
+      @pid         = nil
+    end
+
+    def id
+      "#{@app_context}:#{app_env}"
     end
 
     def log(message)
-      spring_env.log "[application_manager:#{app_env}] #{message}"
+      spring_env.log "[application_manager:#{id}] #{message}"
     end
 
     # We're not using @mutex.synchronize to avoid the weird "<internal:prelude>:10"
@@ -99,6 +104,7 @@ module Spring
           {
             "RAILS_ENV"           => app_env,
             "RACK_ENV"            => app_env,
+            "RAILS_CONTEXT"       => app_context,
             "SPRING_ORIGINAL_ENV" => JSON.dump(Spring::ORIGINAL_ENV),
             "SPRING_PRELOAD"      => preload ? "1" : "0"
           },

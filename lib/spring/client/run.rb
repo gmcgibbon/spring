@@ -132,7 +132,9 @@ module Spring
 
       def connect_to_application(client)
         server.send_io client
-        send_json server, "args" => args, "default_rails_env" => default_rails_env
+        send_json server, "args" => args, "default_env" => {
+          "RAILS_ENV" => default_rails_env, "RAILS_CONTEXT" => default_rails_context
+        }
 
         if IO.select([server], [], [], CONNECT_TIMEOUT)
           server.gets or raise CommandNotFound
@@ -231,6 +233,10 @@ module Spring
 
       def default_rails_env
         ENV['RAILS_ENV'] || ENV['RACK_ENV'] || 'development'
+      end
+
+      def default_rails_context
+        ENV['RAILS_CONTEXT'] || 'all'
       end
     end
   end

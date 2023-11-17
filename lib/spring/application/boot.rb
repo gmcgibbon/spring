@@ -11,9 +11,15 @@ app = Spring::Application.new(
 
 Signal.trap("TERM") { app.terminate }
 
-Spring::ProcessTitleUpdater.run { |distance|
-  "spring app    | #{app.app_name} | started #{distance} ago | #{app.app_env} mode"
-}
+Spring::ProcessTitleUpdater.run do |distance|
+  stats = [
+    app.app_name,
+    "started #{distance} ago",
+    "#{app.app_context} context",
+    "#{app.app_env} mode",
+  ]
+  "spring app    | #{stats.join(" | ")}"
+end
 
 app.eager_preload if ENV.delete("SPRING_PRELOAD") == "1"
 app.run

@@ -78,5 +78,11 @@ module Spring
         command.env(args)
       end
     end
+
+    def context(args)
+      if command.respond_to?(:context)
+        command.context(args)
+      end
+    end
   end
 end
